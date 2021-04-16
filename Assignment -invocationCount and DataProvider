@@ -1,0 +1,106 @@
+BaseClass
+================================================================================================================================
+package testcase;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class BaseClass {
+	public ChromeDriver driver;
+@Parameters({"url","username","password"})
+@BeforeMethod
+	public void preCondition(String url, String uName, String password) throws InterruptedException {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get(url);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+		driver.findElement(By.id("username")).sendKeys(uName);
+		driver.findElement(By.id("password")).sendKeys(password);
+		driver.findElement(By.className("decorativeSubmit")).click();
+		Thread.sleep(5000);
+		driver.findElement(By.linkText("CRM/SFA")).click();
+		Thread.sleep(5000);
+		driver.findElement(By.linkText("Leads")).click();
+		Thread.sleep(5000);
+	}
+@AfterMethod
+public void postCondition() {
+	driver.close();
+
+}
+}
+=============================================================================================================================
+CreateLead
+=============================================================================================================================
+package testcase;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class CreateLead extends BaseClass {
+	
+	@Test(dataProvider ="sendData")
+
+	public void runCreateLead(String company, String fName, String lName) throws InterruptedException {
+		
+		driver.findElement(By.linkText("Create Lead")).click();
+		Thread.sleep(2000);
+		driver.findElement(By.id("createLeadForm_companyName")).sendKeys(company);
+		driver.findElement(By.id("createLeadForm_firstName")).sendKeys(fName);
+		driver.findElement(By.id("createLeadForm_lastName")).sendKeys(lName);
+		Thread.sleep(2000);
+		driver.findElement(By.name("submitButton")).click();
+		Thread.sleep(2000);
+		
+}
+	@DataProvider
+	public String[][] sendData(){
+		String[][] data = new String[3][3];
+		
+		data [0][0]="TestLeaf";
+		data [0][1]="Hari";
+		data [0][2]="R";
+		
+		data [1][0]="TestLeaf";
+		data [1][1]="Naveen";
+		data [1][2]="E";
+		
+		data [2][0]="TestLeaf";
+		data [2][1]="Bowya";
+		data [2][2]="K";
+		
+		return data;
+	}
+}
+
+=================================================================================================================================
+testng.xml
+=================================================================================================================================
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+<parameter name="url" value="http://leaftaps.com/opentaps/"></parameter>
+<parameter name="username" value="demoCSR"></parameter>
+<parameter name="password" value="crmsfa"></parameter>
+
+  <test thread-count="5" name="Test" invocationCount="3" verbose="3">
+    <classes>
+      <class name="testcase.CreateLead"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+
